@@ -15,7 +15,15 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                // Asegurarse de usar pip3 si pip no está disponible
+                sh '''
+                    if ! command -v pip3 &> /dev/null
+                    then
+                        echo "pip3 no encontrado, instalando..."
+                        python3 -m ensurepip --upgrade
+                    fi
+                    pip3 install -r requirements.txt
+                '''
                 sh 'pytest --cov=app --cov-report=term'
             }
         }
