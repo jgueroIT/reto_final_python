@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: reto_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=reto_db
+      - DB_USER=reto_user
+      - DB_PASSWORD=reto_pass
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: reto_db
+    environment:
+      POSTGRES_DB: reto_db
+      POSTGRES_USER: reto_user
+      POSTGRES_PASSWORD: reto_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:

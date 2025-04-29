@@ -7,7 +7,13 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     app = Flask(__name__)
-    app.config.from_object(config_dict[config_name])
+    
+    if config_name == 'testing':
+        app.config.from_object('config.TestingConfig')
+    elif config_name == 'production':
+        app.config.from_object('config.ProductionConfig')
+    else:
+        app.config.from_object('config.DevelopmentConfig')
 
     # Initialize the database
     db.init_app(app)
