@@ -1,35 +1,19 @@
-version: '3.8'
+# Usa una imagen base ligera con Python
+FROM python:3.10-slim
 
-services:
-  app:
-    build: .
-    container_name: reto_app
-    env_file:
-      - .env
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    networks:
-      - reto_net
+# Establece el directorio de trabajo en el contenedor
+WORKDIR /app
 
-  db:
-    image: postgres:15
-    container_name: reto_db
-    restart: always
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - reto_net
+# Copia e instala las dependencias
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-networks:
-  reto_net:
+# Copia el resto del código fuente
+COPY . .
 
-volumes:
-  db_data:
+# Expón el puerto que usará Uvicorn
+EXPOSE 8000
+
+# Comando para ejecutar la app con Uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
