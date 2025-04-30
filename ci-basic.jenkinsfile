@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "jgueroit/reto_final_python"
+        REGISTRY_CREDENTIALS = "docker-hub-creds" // Cambia según el ID en Jenkins
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Python 3') {
+            steps {
+                script {
+                    // Ejecutamos los comandos como root usando 'sudo'
+                    sh '''
+                        echo "Instalando Python 3 y pip3..."
+
+                        # Usamos sudo para ejecutar como root
+                        sudo apt-get update
+                        sudo apt-get install -y python3 python3-pip
+
+                        # Verificar la instalación
+                        python3 --version
+                        pip3 --version
+                    '''
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip3 install -r requirements.txt'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'pytest --cov=app --cov-report=term'
+            }
+        }
+
+        stage('Linting') {
+            steps {
+                sh 'flake8 app tests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage('Push Image to Docker Registry') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', REGISTRY_CREDENTIALS) {
+                        dockerImage.push("latest")
+                        dockerImage.push("${env.BUILD_NUMBER}")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            junit '**/test-results.xml' // opcional
+            cleanWs()
+        }
+    }
+}
