@@ -3,7 +3,6 @@ SQLAlchemy
 psycopg2-binary
 Flask-SQLAlchemy
 fastapi
-uvicorn[standard]
 pytest
 coverage
 
