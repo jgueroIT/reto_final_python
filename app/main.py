@@ -1,7 +1,6 @@
-from fastapi import FastAPI
-from app.routes import router
+from app import create_app
 
-app = FastAPI()
+app = create_app('development')
 
-# Incluir las rutas definidas en routes.py
-app.include_router(router)
+if __name__ == '__main__':
+    app.run()

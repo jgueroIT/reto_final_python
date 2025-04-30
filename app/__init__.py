@@ -7,13 +7,7 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     app = Flask(__name__)
-    
-    if config_name == 'testing':
-        app.config.from_object('config.TestingConfig')
-    elif config_name == 'production':
-        app.config.from_object('config.ProductionConfig')
-    else:
-        app.config.from_object('config.DevelopmentConfig')
+    app.config.from_object(config_dict[config_name])
 
     # Initialize the database
     db.init_app(app)
@@ -25,3 +19,4 @@ def create_app(config_name):
     app.register_blueprint(data_routes)
 
     return app
+

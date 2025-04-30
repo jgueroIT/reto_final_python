@@ -1,19 +1,21 @@
-# Usa una imagen base ligera con Python
-FROM python:3.10-slim
+# Usa una imagen oficial de Python como base
+FROM python:3.11-slim
 
-# Establece el directorio de trabajo en el contenedor
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia e instala las dependencias
-COPY requirements.txt .
+# Copia los archivos del proyecto al contenedor
+COPY . /app
+
+# Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el resto del código fuente
-COPY . .
+# Expone el puerto en el que correrá la app Flask
+EXPOSE 5000
 
-# Expón el puerto que usará Uvicorn
-EXPOSE 8000
+# Establece la variable de entorno para Flask
+ENV FLASK_APP=main.py
+ENV FLASK_RUN_HOST=0.0.0.0
 
-# Comando para ejecutar la app con Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-
+# Comando por defecto para ejecutar la app
+CMD ["flask", "run"]

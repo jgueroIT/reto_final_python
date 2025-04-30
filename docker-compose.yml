@@ -1,35 +1,29 @@
 version: '3.8'
 
 services:
-  app:
+  web:
     build: .
-    container_name: reto_app
+    container_name: flask_app
     ports:
-      - "8000:8000"
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=reto_db
-      - DB_USER=reto_user
-      - DB_PASSWORD=reto_pass
+      - "5000:5000"
+    env_file:
+      - .env
     depends_on:
       - db
     volumes:
       - .:/app
-    restart: unless-stopped
 
   db:
     image: postgres:15
-    container_name: reto_db
+    container_name: postgres_db
     environment:
-      POSTGRES_DB: reto_db
       POSTGRES_USER: reto_user
-      POSTGRES_PASSWORD: reto_pass
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: reto_db_utf8
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
 
 volumes:
   pgdata:
